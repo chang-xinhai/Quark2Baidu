@@ -27,28 +27,14 @@ pip install httpx prompt_toolkit tqdm
 
 ### 1. 获取 Cookie
 
-#### **方法 1：使用 Cookie-Editor 插件（推荐）**
+#### **方法 1：使用 Cookie-Editor 插件**
 
 **Chrome/Edge 用户**：
 1. 安装 [Cookie-Editor](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm ) 插件
 2. 登录 [夸克网盘](https://pan.quark.cn ) 和 [百度网盘](https://pan.baidu.com )
 3. 点击插件图标 → 点击 **Export** → 选择 **Header String** 格式复制
 
-**Firefox/Safari 用户**：
-
-1. 搜索并安装类似的 Cookie 导出插件
-2. 登录相应网盘
-3. 使用插件的导出功能复制完整 Cookie 字符串
-
-#### **方法 2：从 Application 面板获取**
-
-1. 按 **F12** 打开开发者工具
-2. 切换到 **Application** 标签 → 左侧选择 **Cookies**
-3. 在右侧表格中，**选中所有 Cookie**（包括 HttpOnly 的）
-4. 右键 → **Copy → Copy All as Cookie String**
-5. 完整粘贴到程序配置中
-
-#### **方法 3：从 Network 面板获取（备用）**
+#### **方法 2：从 Network 面板获取**
 
 1. 登录夸克网盘/百度网盘
 2. 按 **F12** 打开开发者工具 → 切换到 **Network** 标签
