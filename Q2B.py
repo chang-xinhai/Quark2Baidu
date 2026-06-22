@@ -10,6 +10,7 @@ import json
 import time
 import base64
 import hashlib
+import tempfile
 import traceback
 from pathlib import Path, PurePosixPath
 from typing import List, Dict, Any, Optional, Tuple, Set
@@ -25,6 +26,7 @@ UA_BAIDU = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 CONFIG_FILE = Path("config.json")
 DEFAULT_CHUNK_SIZE = 262144  # 256KB
 DEFAULT_CONCURRENCY = 3
+BAIDU_UPLOAD_BLOCK_SIZE = 4 * 1024 * 1024
 
 
 class UI:
@@ -105,6 +107,7 @@ class ConfigManager:
         "target_path": "/Q2B/",
         "concurrency": DEFAULT_CONCURRENCY,
         "chunk_size": DEFAULT_CHUNK_SIZE,
+        "fallback_upload": True,
         "verify_ssl": True
     }
 
@@ -292,11 +295,27 @@ class QuarkClient:
             pass
         return None
 
+    def download_to_file(self, url: str, output_path: Path) -> bool:
+        """下载完整文件到本地临时路径"""
+        try:
+            with self.client.stream("GET", url) as resp:
+                if resp.status_code not in [200, 206]:
+                    return False
+                with open(output_path, "wb") as f:
+                    for chunk in resp.iter_bytes(1024 * 1024):
+                        if chunk:
+                            f.write(chunk)
+            return True
+        except:
+            return False
+
 
 class BaiduClient:
     """百度网盘客户端"""
     PRECREATE = "https://pan.baidu.com/api/precreate"
     RAPID = "https://pan.baidu.com/api/rapidupload"
+    UPLOAD = "https://d.pcs.baidu.com/rest/2.0/pcs/superfile2"
+    CREATE = "https://pan.baidu.com/api/create"
 
     def __init__(self, cookie: str, target_root: str, verify_ssl: bool = True):
         headers = {'User-Agent': UA_BAIDU, 'Referer': 'https://pan.baidu.com/disk/main', 'Origin': 'https://pan.baidu.com'}
@@ -421,6 +440,91 @@ class BaiduClient:
             return False, f"Err {errno}"
         except Exception as e:
             return False, str(e)[:30]
+
+    @staticmethod
+    def _file_block_md5s(local_path: Path, block_size: int = BAIDU_UPLOAD_BLOCK_SIZE) -> List[str]:
+        block_md5s = []
+        with open(local_path, "rb") as f:
+            while True:
+                chunk = f.read(block_size)
+                if not chunk:
+                    break
+                block_md5s.append(hashlib.md5(chunk).hexdigest())
+        return block_md5s
+
+    def upload_file(self, local_path: Path, relative_path: str, filename: str) -> Tuple[bool, str]:
+        """普通分片上传，用作秒传失败后的后备方案"""
+        full_path = f"{self.target_root}{relative_path}{filename}".replace('//', '/')
+        size = local_path.stat().st_size
+        block_md5s = self._file_block_md5s(local_path)
+        if not block_md5s:
+            block_md5s = [hashlib.md5(b"").hexdigest()]
+
+        common_params = {'bdstoken': self.bdstoken, 'app_id': '250528', 'channel': 'chunlei', 'web': '1', 'clienttype': '0'}
+        pre_data = {
+            'path': full_path,
+            'size': str(size),
+            'isdir': '0',
+            'autoinit': '1',
+            'rtype': '1',
+            'block_list': json.dumps(block_md5s),
+            'target_path': str(PurePosixPath(full_path).parent) + '/'
+        }
+
+        try:
+            resp = self.client.post(self.PRECREATE, params=common_params, data=pre_data)
+            js = resp.json()
+            if js.get('errno') != 0:
+                return False, f"预创建失败 Err {js.get('errno')}"
+            if js.get('return_type') == 2:
+                return True, "Rapid success"
+
+            upload_id = js.get('uploadid')
+            if not upload_id:
+                return False, "预创建未返回 uploadid"
+
+            raw_needed = js.get('block_list')
+            if isinstance(raw_needed, list) and raw_needed:
+                needed_blocks = {int(x) for x in raw_needed}
+            else:
+                needed_blocks = set(range(len(block_md5s)))
+
+            with open(local_path, "rb") as f:
+                for idx in range(len(block_md5s)):
+                    chunk = f.read(BAIDU_UPLOAD_BLOCK_SIZE)
+                    if idx not in needed_blocks:
+                        continue
+
+                    upload_params = {
+                        'method': 'upload',
+                        'type': 'tmpfile',
+                        'app_id': '250528',
+                        'path': full_path,
+                        'uploadid': upload_id,
+                        'partseq': str(idx)
+                    }
+                    files = {'file': (filename, chunk, 'application/octet-stream')}
+                    upload_resp = self.client.post(self.UPLOAD, params=upload_params, files=files)
+                    upload_js = upload_resp.json()
+                    if upload_js.get('error_code') or upload_js.get('errno'):
+                        return False, f"分片{idx}上传失败: {upload_js.get('error_code') or upload_js.get('errno')}"
+
+            create_data = {
+                'path': full_path,
+                'size': str(size),
+                'isdir': '0',
+                'rtype': '1',
+                'uploadid': upload_id,
+                'block_list': json.dumps(block_md5s),
+                'target_path': str(PurePosixPath(full_path).parent) + '/'
+            }
+            create_resp = self.client.post(self.CREATE, params=common_params, data=create_data)
+            create_js = create_resp.json()
+            if create_js.get('errno') == 0:
+                return True, "Upload success"
+            return False, f"创建文件失败 Err {create_js.get('errno')}"
+        except Exception as e:
+            return False, str(e)[:80]
 
 
 def file_browser_tui(quark: QuarkClient) -> Tuple[Set[str], Set[str], Dict[str, str]]:
@@ -668,6 +772,17 @@ def process_single_task(file_info: Dict, config: Dict, uk: str, bdstoken: str) -
         b_client.uk = uk
         b_client.bdstoken = bdstoken
 
+        # The download host may require cookies set while fetching file details.
+        # Refreshing details inside this thread keeps the signed URL and cookie jar together.
+        fresh_infos = q_client.get_file_info([file_info['fid']])
+        if not fresh_infos:
+            res['msg'] = "刷新文件详情失败"
+            return res
+        relative_path = file_info.get('path', '/')
+        file_info = fresh_infos[0]
+        file_info['path'] = relative_path
+        res['name'] = file_info['file_name']
+
         # 1. 夸克：获取首分片 MD5
         slice_md5 = q_client.get_slice_md5(file_info['download_url'], config['chunk_size'])
         if not slice_md5:
@@ -695,7 +810,32 @@ def process_single_task(file_info: Dict, config: Dict, uk: str, bdstoken: str) -
         if success:
             res['status'] = 'success'
         else:
-            res['msg'] = f"秒传失败: {msg}"
+            if not config.get('fallback_upload', True):
+                res['msg'] = f"秒传失败: {msg}"
+                return res
+
+            temp_path = None
+            try:
+                suffix = Path(file_info['file_name']).suffix or ".tmp"
+                with tempfile.NamedTemporaryFile(prefix="q2b_", suffix=suffix, delete=False) as tmp:
+                    temp_path = Path(tmp.name)
+
+                if not q_client.download_to_file(file_info['download_url'], temp_path):
+                    res['msg'] = f"秒传失败: {msg}; 普通下载失败"
+                    return res
+
+                upload_ok, upload_msg = b_client.upload_file(temp_path, file_info['path'], file_info['file_name'])
+                if upload_ok:
+                    res['status'] = 'success'
+                    res['msg'] = upload_msg
+                else:
+                    res['msg'] = f"秒传失败: {msg}; 普通上传失败: {upload_msg}"
+            finally:
+                if temp_path:
+                    try:
+                        temp_path.unlink(missing_ok=True)
+                    except:
+                        pass
 
     except Exception as e:
         res['msg'] = f"异常: {str(e)[:50]}"
@@ -805,11 +945,12 @@ def main():
         return
 
     chunk_size = config.get('chunk_size', DEFAULT_CHUNK_SIZE)
+    fallback_upload = config.get('fallback_upload', True)
     filtered_tasks = []
     skipped_tasks = []
 
     for task in tasks_info:
-        if task['size'] < chunk_size:
+        if task['size'] < chunk_size and not fallback_upload:
             skipped_tasks.append({'name': task['file_name'], 'size': task['size'], 'reason': f"文件大小({task['size']}B)小于分片大小({chunk_size}B)"})
         else:
             filtered_tasks.append(task)
