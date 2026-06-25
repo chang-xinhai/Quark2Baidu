@@ -1,0 +1,49 @@
+{
+  "name": "quark2baidu",
+  "version": "2.0.0",
+  "description": "Cross-platform CLI for moving files from Quark Cloud Drive to Baidu Netdisk.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Quark2Baidu contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chang-xinhai/Quark2Baidu.git"
+  },
+  "homepage": "https://chang-xinhai.github.io/Quark2Baidu/",
+  "bugs": {
+    "url": "https://github.com/chang-xinhai/Quark2Baidu/issues"
+  },
+  "bin": {
+    "q2b": "./bin/q2b.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "Q2B.py",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "check": "node --check bin/q2b.js && find src test -name '*.js' -print0 | xargs -0 -n1 node --check",
+    "test": "node --test",
+    "start": "node ./bin/q2b.js",
+    "pages:serve": "npx http-server docs -p 4173"
+  },
+  "keywords": [
+    "quark",
+    "baidu",
+    "netdisk",
+    "cloud-drive",
+    "cli",
+    "transfer"
+  ],
+  "dependencies": {
+    "@inquirer/prompts": "^7.8.6",
+    "cli-progress": "^3.12.0",
+    "commander": "^14.0.2",
+    "undici": "^7.16.0"
+  }
+}

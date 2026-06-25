@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Q2B - Quark to Baidu in one command</title>
+    <meta name="description" content="Q2B is a careful cross-platform CLI for moving files from Quark Cloud Drive to Baidu Netdisk.">
+    <meta property="og:title" content="Q2B - Quark to Baidu in one command">
+    <meta property="og:description" content="A careful cross-platform CLI for moving files from Quark Cloud Drive to Baidu Netdisk.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./assets/q2b-hero.png">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='64' height='64' rx='12' fill='%230b1220'/%3E%3Cpath d='M17 35c0-8 6-15 14-15 6 0 11 3 13 8 5 1 8 5 8 10 0 6-5 10-11 10H22c-7 0-11-5-11-11 0-1 0-2 1-3' fill='none' stroke='%23256be8' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M24 42h16' stroke='%2329b765' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Q2B home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Q2B</span>
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#features">Features</a>
+        <a href="#install">Install</a>
+        <a href="#safety">Safety</a>
+        <a href="#roadmap">Roadmap</a>
+      </nav>
+      <a class="header-action" href="https://github.com/chang-xinhai/Quark2Baidu">GitHub</a>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>Quark to Baidu, in one command</h1>
+          <p>A careful cross-platform CLI for moving files from Quark Cloud Drive to Baidu Netdisk.</p>
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button button-primary" href="#install">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17h16M12 3v11m0 0 4-4m-4 4-4-4" /></svg>
+              Install with npm
+            </a>
+            <a class="button button-secondary" href="https://github.com/chang-xinhai/Quark2Baidu">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3 19c.5.1.7-.2.7-.5v-2c-3 .6-3.6-1.3-3.6-1.3-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.4-.3-4.9-1.2-4.9-5.3 0-1.2.4-2.1 1.1-2.9-.1-.3-.5-1.4.1-2.9 0 0 .9-.3 3 1.1a10 10 0 0 1 5.4 0c2.1-1.4 3-1.1 3-1.1.6 1.5.2 2.6.1 2.9.7.8 1.1 1.7 1.1 2.9 0 4.1-2.5 5-4.9 5.3.4.3.8 1 .8 2v3c0 .3.2.6.8.5A10 10 0 0 0 12 2Z" /></svg>
+              View on GitHub
+            </a>
+          </div>
+          <div class="platforms" aria-label="Supported platforms">
+            <span>Windows</span>
+            <span>macOS</span>
+            <span>Linux</span>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <img src="./assets/q2b-hero.png" alt="A terminal-style transfer interface connected to two cloud drive nodes">
+        </div>
+      </section>
+
+      <section id="features" class="feature-strip" aria-labelledby="features-title">
+        <div class="section-heading">
+          <h2 id="features-title">Built for real transfers</h2>
+          <p>One CLI, local credentials, careful defaults, and a path toward broader cloud-to-cloud migration.</p>
+        </div>
+        <div class="feature-grid">
+          <article>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 9-13h-6l1-7Z" /></svg>
+            <h3>Rapid when possible</h3>
+            <p>Uses Baidu rapid upload first, then can fall back to normal upload when the server-side cache misses.</p>
+          </article>
+          <article>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" /></svg>
+            <h3>Keeps structure</h3>
+            <p>Recursive folder selection preserves the source directory layout under your chosen Baidu target path.</p>
+          </article>
+          <article>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-9 9h4l-5 5-5-5h4a11 11 0 0 1 20 0h-2a9 9 0 0 0-7-9Z" /></svg>
+            <h3>Recoverable flow</h3>
+            <p>Timeouts, path validation, redacted config output, and clear failure summaries make retries safer.</p>
+          </article>
+          <article>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 5 3 8 7 9 4-1 7-4 7-9V6l-7-3Z" /></svg>
+            <h3>Local by design</h3>
+            <p>Cookies stay on your machine. Requests go directly from your device to Quark and Baidu.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="install" class="install-section" aria-labelledby="install-title">
+        <div class="section-heading align-left">
+          <h2 id="install-title">Install and start</h2>
+          <p>Use the GitHub package today. Publish the same package to npm later without changing the `q2b` command.</p>
+        </div>
+        <div class="command-layout">
+          <div class="command-panel">
+            <div class="tabs" role="tablist" aria-label="Install command">
+              <button class="tab active" type="button" data-command="npm">npm</button>
+              <button class="tab" type="button" data-command="npx">npx</button>
+              <button class="tab" type="button" data-command="source">source</button>
+            </div>
+            <pre><code id="install-command">npm install -g github:chang-xinhai/Quark2Baidu</code></pre>
+            <button class="copy" type="button" data-copy-target="install-command">Copy</button>
+          </div>
+          <ol class="steps">
+            <li><span>1</span><p>Run <code>q2b setup</code> and paste Quark/Baidu cookies.</p></li>
+            <li><span>2</span><p>Run <code>q2b doctor --online</code> to verify login state.</p></li>
+            <li><span>3</span><p>Run <code>q2b</code>, choose files, and start the transfer.</p></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="cli-reference" aria-labelledby="cli-title">
+        <div class="section-heading align-left">
+          <h2 id="cli-title">Small command surface</h2>
+          <p>Enough structure for daily use, without forcing users to learn a new toolchain.</p>
+        </div>
+        <div class="reference-list">
+          <div><code>q2b setup</code><span>Save cookies and defaults to a user-level config file.</span></div>
+          <div><code>q2b</code><span>Open the interactive Quark file picker and transfer selected files.</span></div>
+          <div><code>q2b doctor --online</code><span>Check Node, config, and current Quark/Baidu login status.</span></div>
+          <div><code>q2b config show</code><span>Print redacted config for support and debugging.</span></div>
+        </div>
+      </section>
+
+      <section id="safety" class="safety-section" aria-labelledby="safety-title">
+        <div class="safety-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64"><path d="M32 7 12 15v16c0 15 9 23 20 26 11-3 20-11 20-26V15L32 7Z" /><path d="m23 32 6 6 13-15" /></svg>
+        </div>
+        <div>
+          <h2 id="safety-title">Safety and privacy commitments</h2>
+          <ul>
+            <li>Config is stored in the operating system user config directory, not inside the repo.</li>
+            <li>Cookie values are redacted in diagnostic output and can be provided through environment variables.</li>
+            <li>Remote paths are normalized and checked before requests are sent.</li>
+            <li>No telemetry, proxy service, or third-party backend is used by Q2B.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="roadmap" class="roadmap-section" aria-labelledby="roadmap-title">
+        <div class="section-heading">
+          <h2 id="roadmap-title">Roadmap</h2>
+          <p>Q2B starts with Quark to Baidu, then grows into a more general migration engine.</p>
+        </div>
+        <div class="roadmap">
+          <div><span>Now</span><strong>Quark -> Baidu</strong><p>Cross-platform npm CLI, rapid transfer, fallback upload, recursive selection.</p></div>
+          <div><span>Next</span><strong>Reliability layer</strong><p>Resume state, transfer reports, rate-limit handling, and richer retry policy.</p></div>
+          <div><span>Later</span><strong>Provider adapters</strong><p>A provider interface for more netdisks and two-way migration workflows.</p></div>
+          <div><span>Open</span><strong>Community ecosystem</strong><p>Documented extension points for auth, listing, hashing, and upload adapters.</p></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Q2B (Quark2Baidu) - Open Source CLI</span>
+      <div>
+        <a href="https://github.com/chang-xinhai/Quark2Baidu">GitHub</a>
+        <a href="https://github.com/chang-xinhai/Quark2Baidu/issues">Issues</a>
+        <a href="https://github.com/chang-xinhai/Quark2Baidu/blob/main/LICENSE">MIT License</a>
+      </div>
+    </footer>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

@@ -1,1 +1,11 @@
 config.json
+node_modules/
+coverage/
+dist/
+tmp/
+.DS_Store
+.env
+.env.*
+*.log
+*.pyc
+__pycache__/

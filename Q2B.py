@@ -6,6 +6,7 @@
 3. 使用本工具造成的任何账号风险由使用者自行承担
 """
 import sys
+import os
 import json
 import time
 import base64
@@ -23,10 +24,43 @@ FAKE_BLOCK_LIST_MD5 = ["5910a591dd8fc18c32a8f3df4fdc1761", "a5fc157d78e6ad1c7e11
 UA_QUARK = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) quark-cloud-drive/2.5.20 Chrome/100.0.4896.160 Electron/18.3.5.4-b478491100 Safari/537.36 Channel/pckk_other_ch'
 UA_BAIDU = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 
-CONFIG_FILE = Path("config.json")
+def default_config_file() -> Path:
+    env_path = os.environ.get("Q2B_CONFIG_FILE") or os.environ.get("Q2B_CONFIG")
+    if env_path:
+        return Path(env_path).expanduser()
+
+    legacy = Path("config.json")
+    if legacy.exists():
+        return legacy
+
+    home = Path.home()
+    if sys.platform == "darwin":
+        return home / "Library" / "Application Support" / "q2b" / "config.json"
+    if os.name == "nt":
+        return Path(os.environ.get("APPDATA", home / "AppData" / "Roaming")) / "q2b" / "config.json"
+    return Path(os.environ.get("XDG_CONFIG_HOME", home / ".config")) / "q2b" / "config.json"
+
+
+CONFIG_FILE = default_config_file()
 DEFAULT_CHUNK_SIZE = 262144  # 256KB
 DEFAULT_CONCURRENCY = 3
 BAIDU_UPLOAD_BLOCK_SIZE = 4 * 1024 * 1024
+
+
+def normalize_remote_dir(path: str) -> str:
+    """Normalize a Baidu remote directory and reject traversal/control chars."""
+    if not isinstance(path, str):
+        raise ValueError("路径必须是字符串")
+    path = (path.strip() or "/").replace("\\", "/")
+    if any(ord(ch) < 32 or ord(ch) == 127 for ch in path):
+        raise ValueError("路径不能包含控制字符")
+    parts = [part for part in path.split("/") if part]
+    if any(part in (".", "..") for part in parts):
+        raise ValueError("路径不能包含 . 或 ..")
+    normalized = "/" + "/".join(parts)
+    if normalized != "/" and not normalized.endswith("/"):
+        normalized += "/"
+    return normalized
 
 
 class UI:
@@ -128,8 +162,13 @@ class ConfigManager:
     @staticmethod
     def save(config: Dict[str, Any]):
         try:
+            CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
             with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
                 json.dump(config, f, indent=4, ensure_ascii=False)
+            try:
+                CONFIG_FILE.chmod(0o600)
+            except OSError:
+                pass
             UI.success(f"配置已保存至: {CONFIG_FILE}")
         except Exception as e:
             UI.error(f"保存配置失败: {e}")
@@ -154,12 +193,13 @@ class ConfigManager:
             new_config['baidu_cookie'] = b_cookie
 
         # Target Path
-        path = UI.ask("百度网盘保存路径", new_config['target_path'])
-        if not path.startswith('/'):
-            path = '/' + path
-        if not path.endswith('/'):
-            path = path + '/'
-        new_config['target_path'] = path
+        while True:
+            path = UI.ask("百度网盘保存路径", new_config['target_path'])
+            try:
+                new_config['target_path'] = normalize_remote_dir(path)
+                break
+            except ValueError as e:
+                UI.error(str(e), "请使用类似 /Q2B/ 的网盘目录路径")
 
         # Concurrency
         conc = UI.ask("并发线程数 (建议 3-10)", str(new_config['concurrency']))
@@ -175,8 +215,13 @@ def parse_cookies(cookie_str: str) -> Dict[str, str]:
     if not cookie_str:
         return cookies
     for item in cookie_str.split(';'):
-        if '=' in item:
-            k, v = item.strip().split('=', 1)
+        item = item.strip()
+        if not item or '=' not in item:
+            continue
+        k, v = item.split('=', 1)
+        k = k.strip()
+        v = v.strip()
+        if k and not any(ord(ch) < 32 or ord(ch) == 127 for ch in k + v):
             cookies[k] = v
     return cookies
 
@@ -333,12 +378,7 @@ class BaiduClient:
     @staticmethod
     def _normalize_path(path: str) -> str:
         """确保路径格式正确"""
-        path = path.replace('\\', '/').replace('//', '/')
-        if not path.startswith('/'):
-            path = '/' + path
-        if not path.endswith('/'):
-            path = path + '/'
-        return path
+        return normalize_remote_dir(path)
 
     def init_user_info(self) -> bool:
         """初始化 UK 和 Token"""
