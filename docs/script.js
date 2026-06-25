@@ -38,6 +38,13 @@ const copy = {
     installTitle: "Install once, then run q2b anywhere",
     installBodyPrefix: "Install from npm, configure once, then use",
     installBodySuffix: "on Windows, macOS, or Linux with the same workflow.",
+    installCommandLabel: "Recommended",
+    installCommandTitle: "Global npm install",
+    installMetaNpm: "npm package",
+    installMetaNode: "Node 18+",
+    installMetaLocal: "local config",
+    installFlowLabel: "After install",
+    installFlowTitle: "A three-step run path",
     tabSource: "source",
     copy: "Copy",
     copied: "Copied",
@@ -106,6 +113,13 @@ const copy = {
     installTitle: "安装一次，到处运行 q2b",
     installBodyPrefix: "从 npm 安装并配置一次，然后使用",
     installBodySuffix: "在 Windows、macOS、Linux 上保持同一套工作流。",
+    installCommandLabel: "推荐",
+    installCommandTitle: "全局 npm 安装",
+    installMetaNpm: "npm 包",
+    installMetaNode: "Node 18+",
+    installMetaLocal: "本地配置",
+    installFlowLabel: "安装之后",
+    installFlowTitle: "三步开始迁移",
     tabSource: "源码",
     copy: "复制",
     copied: "已复制",
@@ -262,9 +276,10 @@ for (const button of document.querySelectorAll("[data-copy-target]")) {
     const ok = await copyText(target.textContent);
     const dictionary = copy[currentLanguage];
     const selected = ok ? false : selectElementText(target);
-    button.textContent = ok ? dictionary.copied : selected ? dictionary.selected : dictionary.copyFailed;
+    const label = button.querySelector("[data-copy-label]") || button;
+    label.textContent = ok ? dictionary.copied : selected ? dictionary.selected : dictionary.copyFailed;
     setTimeout(() => {
-      button.textContent = copy[currentLanguage].copy;
+      label.textContent = copy[currentLanguage].copy;
     }, 1200);
   });
 }

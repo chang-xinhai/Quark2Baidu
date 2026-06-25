@@ -172,28 +172,54 @@ $ q2b</code></pre>
           </div>
           <div class="install-layout">
             <div class="command-panel">
-              <div class="tabs" role="tablist" aria-label="Install command">
-                <button class="tab active" type="button" data-command="npm" aria-selected="true">npm</button>
-                <button class="tab" type="button" data-command="npx" aria-selected="false">npx</button>
-                <button class="tab" type="button" data-command="source" aria-selected="false" data-i18n="tabSource">source</button>
+              <div class="command-panel-top">
+                <div>
+                  <span class="mini-label" data-i18n="installCommandLabel">Recommended</span>
+                  <strong data-i18n="installCommandTitle">Global npm install</strong>
+                </div>
+                <div class="tabs" role="tablist" aria-label="Install command">
+                  <button class="tab active" type="button" data-command="npm" aria-selected="true">npm</button>
+                  <button class="tab" type="button" data-command="npx" aria-selected="false">npx</button>
+                  <button class="tab" type="button" data-command="source" aria-selected="false" data-i18n="tabSource">source</button>
+                </div>
               </div>
-              <pre><code id="install-command">npm install -g quark2baidu</code></pre>
-              <button class="copy" type="button" data-copy-target="install-command" data-i18n="copy">Copy</button>
+              <div class="command-row" role="group" aria-label="Install command">
+                <span class="prompt-symbol" aria-hidden="true">$</span>
+                <code id="install-command">npm install -g quark2baidu</code>
+                <button class="copy" type="button" data-copy-target="install-command" aria-label="Copy install command">
+                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                    <rect x="5" y="5" width="9" height="9" rx="1.6" />
+                    <path d="M5 11H3.5A1.5 1.5 0 0 1 2 9.5v-7A1.5 1.5 0 0 1 3.5 1h7A1.5 1.5 0 0 1 12 2.5V5" />
+                  </svg>
+                  <span data-copy-label data-i18n="copy">Copy</span>
+                </button>
+              </div>
+              <div class="install-meta" aria-label="Package facts">
+                <span data-i18n="installMetaNpm">npm package</span>
+                <span data-i18n="installMetaNode">Node 18+</span>
+                <span data-i18n="installMetaLocal">local config</span>
+              </div>
             </div>
-            <ol class="steps">
-              <li>
-                <span>1</span>
-                <p><span data-i18n="stepOneBefore">Run</span> <code>q2b setup</code> <span data-i18n="stepOneAfter">and paste Quark/Baidu cookies.</span></p>
-              </li>
-              <li>
-                <span>2</span>
-                <p><span data-i18n="stepTwoBefore">Run</span> <code>q2b doctor --online</code> <span data-i18n="stepTwoAfter">to verify login state.</span></p>
-              </li>
-              <li>
-                <span>3</span>
-                <p><span data-i18n="stepThreeBefore">Run</span> <code>q2b</code><span data-i18n="stepThreeAfter">, choose files, and start the transfer.</span></p>
-              </li>
-            </ol>
+            <div class="flow-panel">
+              <div class="flow-panel-head">
+                <span class="mini-label" data-i18n="installFlowLabel">After install</span>
+                <strong data-i18n="installFlowTitle">A three-step run path</strong>
+              </div>
+              <ol class="steps">
+                <li>
+                  <span>1</span>
+                  <p><span data-i18n="stepOneBefore">Run</span> <code>q2b setup</code> <span data-i18n="stepOneAfter">and paste Quark/Baidu cookies.</span></p>
+                </li>
+                <li>
+                  <span>2</span>
+                  <p><span data-i18n="stepTwoBefore">Run</span> <code>q2b doctor --online</code> <span data-i18n="stepTwoAfter">to verify login state.</span></p>
+                </li>
+                <li>
+                  <span>3</span>
+                  <p><span data-i18n="stepThreeBefore">Run</span> <code>q2b</code><span data-i18n="stepThreeAfter">, choose files, and start the transfer.</span></p>
+                </li>
+              </ol>
+            </div>
           </div>
         </section>
 
