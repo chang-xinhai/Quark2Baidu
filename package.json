@@ -14,7 +14,7 @@
     "url": "https://github.com/chang-xinhai/Quark2Baidu/issues"
   },
   "bin": {
-    "q2b": "./bin/q2b.js"
+    "q2b": "bin/q2b.js"
   },
   "files": [
     "bin",
