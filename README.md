@@ -17,19 +17,13 @@ Q2B starts as a focused Quark -> Baidu transfer tool and is being shaped into a 
 
 ## Install
 
-Until this package is published to the npm registry, install directly from GitHub:
-
-```bash
-npm install -g github:chang-xinhai/Quark2Baidu
-```
-
-After registry publication, the command will be:
+Install from npm:
 
 ```bash
 npm install -g quark2baidu
 ```
 
-You can also run from source:
+You can also run from GitHub source:
 
 ```bash
 git clone https://github.com/chang-xinhai/Quark2Baidu.git

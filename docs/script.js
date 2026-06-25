@@ -1,6 +1,6 @@
 const commands = {
-  npm: "npm install -g github:chang-xinhai/Quark2Baidu",
-  npx: "npx github:chang-xinhai/Quark2Baidu",
+  npm: "npm install -g quark2baidu",
+  npx: "npx quark2baidu",
   source: "git clone https://github.com/chang-xinhai/Quark2Baidu.git\ncd Quark2Baidu\nnpm install\nnpm link\nq2b doctor"
 };
 
